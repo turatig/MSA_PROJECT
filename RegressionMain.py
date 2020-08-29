@@ -23,10 +23,22 @@ if __name__=="__main__":
 
     X=data.drop('median_house_value',axis=1).to_numpy()
     y=data['median_house_value'].to_numpy()
-    #### X,y=shuffleDataset(X,y)
-    estimateRegression(X,y,1,10000,100)
-    estimateRegression(X,y,0.05,1,100)
+    
+    """
+        GridSearch CV plus nested CV estimates and plot to study dependence of the risk estimate
+        on hyperparamter alpha
+    """
+    best=estimateRegression(X,y,1,10000,100)
 
+    """
+        Plot target labels and try to shuffle the dataset to verify the realiability of the data
+    """
+    fig,ax=plt.subplots(1)
+    ax.plot(y)
+    ax.set_ylabel("Target labels")
+    
+
+    plt.show()
     exit()
 
     #### Use PCA to compute the same estimates. Select the number of components that count for 95% of the total variance

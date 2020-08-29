@@ -1,24 +1,41 @@
 import matplotlib.pyplot as plt
 from copy import copy
 
-#### Given the scoresList computed by a GridSearchCV call plot the coefficients of the Ridge regressor versus alpha coefficients
+"""
+    All these functions take in argument the ax to plot onto and a scores list computed by GridSearchCV
+"""
+#### alpha vs predictor coefficients
 def plotCoef(ax,scoresList):
+
     scoresList=copy(scoresList)
-    scoresList.sort(key=lambda e:e["hparams"]["alpha"])
-    ax.plot([ x["hparams"]["alpha"] for x in scoresList ],[ y["coefs"] for y in scoresList ])
+    scoresList.sort(key=lambda e:e["estimator"].getAlpha())
+
+    ax.plot([ x["estimator"].getAlpha() for x in scoresList ],
+            [ y["estimator"].getCoefs() for y in scoresList ])
+
     ax.set_xlabel("alpha")
     ax.set_ylabel("coeffs")
 
+#### alpha vs CV risk estimate 
 def plotTestErr(ax,scoresList):
     scoresList=copy(scoresList)
-    scoresList.sort(key=lambda e:e["hparams"]["alpha"])
-    ax.plot([ x["hparams"]["alpha"] for x in scoresList ],[ y["meanScore"] for y in scoresList ])
+    scoresList.sort(key=lambda e:e["estimator"].getAlpha())
+
+    ax.plot([ x["estimator"].getAlpha() for x in scoresList ],
+            [ y["meanScore"] for y in scoresList ])
+
     ax.set_xlabel("alpha")
     ax.set_ylabel("meanScore")
 
+#### alpha vs CV risk estimate. Test that sklearn CV estimates and this implementation's one agree
+def plotSkTestErr(ax,scoresList): pass
+
 def plotPredVariance(ax,scoresList):
     scoresList=copy(scoresList)
-    scoresList.sort(key=lambda e:e["hparams"]["alpha"])
-    ax.plot([ x["hparams"]["alpha"] for x in scoresList ],[ y["variance"] for y in scoresList ])
+    scoresList.sort(key=lambda e:e["estimator"].getAlpha())
+
+    ax.plot([ x["estimator"].getAlpha() for x in scoresList ],
+            [ y["variance"] for y in scoresList ])
+
     ax.set_xlabel("alpha")
     ax.set_ylabel("variance")

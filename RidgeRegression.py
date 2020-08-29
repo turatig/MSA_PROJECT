@@ -13,16 +13,31 @@ class RidgeRegression:
         If fit_intercept is True, compute the intercept to be added to predictions
     """
     def __init__(self,alpha=1,fit_intercept=True):
-        #By default set to 1
+        
         self.alpha=alpha
         self.fit_intercept=fit_intercept
         self.w=np.array([])
         self.intercept=0.
 
-    def setAlpha(self,a): self.alpha=a
+    def getAlpha(self): return self.alpha
+    def getFitIntercept(self): return self.fit_intercept
+    def getIntercept(self): return self.intercept
+    def getCoefs(self): return self.w
+    def getFitIntercept(self): return self.fit_intercept
+
+    def setAlpha(self,a): 
+        if a>0: self.alpha=a
+        
     def setFitIntercept(self,a):self.fit_intercept=a
 
-    #### This method implement the generic interface to set hyperparameters the estimator.
+    #### This methods implement the generic interface to get/set the hyperparameters of the estimator.
+
+    def get_params(self):
+        return {
+            "alpha": self.alpha,
+            "fit_intercept": self.fit_intercept
+        }
+
     def set_params(self,**d):
         _d={"alpha": lambda a: self.setAlpha(a),
             "fit_intercept": lambda a: self.setFitIntercept(a)
@@ -46,7 +61,7 @@ class RidgeRegression:
             y_offset=np.average(y,axis=0)
             #### Center data by subtracting the mean
             X=pr.center(X)
-            y=pr.center(y)
+            #### y=pr.center(y)
             
         #### w = (X^T X + alpha I) ^ (-1) + X^T y  
         invertible_mat=np.matmul(X.T,X) + self.alpha * np.identity(X.shape[1])

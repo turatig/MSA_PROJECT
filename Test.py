@@ -1,16 +1,20 @@
-from RidgeRegression import RidgeRegression
-from CrossValidation import GridSearchCV as gsc
+from numpy.testing import *
+import unittest
+
+import pandas as pd
+import numpy as np
+import random as rnd
+
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge,RidgeCV
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import make_scorer
-from numpy.testing import *
-import unittest
-import pandas as pd
-import numpy as np
-import random as rnd
+
+from RidgeRegression import RidgeRegression
+from CrossValidation import GridSearchCV as gsc
+from Metrics import *
 
 
 def getModels(X,y,alpha,fit_intercept=True):
@@ -82,17 +86,28 @@ class RidgeImplementationTest(unittest.TestCase):
 
     #### Testing crossValidation estimate
     def test_crossValidation(self):
-        start,stop,n_values=10,10000,100
+        start,stop,n_values=rnd.randrange(10,100),rnd.randrange(10000,15000),rnd.randrange(100,150)
+        print("Values in grid:")
+        print(n_values)
         implScoresList=gsc(RidgeRegression(),{"alpha": np.linspace(start,stop,n_values)},
-                                                self.X,self.y,metric="mse")
+                                                self.X,self.y,metric=r2)
 
-        skScoresList=GridSearchCV(Ridge(),{"alpha": np.linspace(start,stop,n_values)},scoring="neg_mean_squared_error").\
+        skScoresList=GridSearchCV(Ridge(),{"alpha": np.linspace(start,stop,n_values)},
+                                    cv=5,return_train_score=False).\
                                     fit(self.X,self.y)
-        
-        print(skScoresList.best_estimator_.coef_)
-        print(skScoresList.best_params_)
-        print(skScoresList.best_score_)
-        print(implScoresList[0])
+
+        print(skScoresList.cv_results_["params"])
+        print(skScoresList.cv_results_["mean_test_score"])
+
+        """
+            Test that the difference between implemented CV estimate and sklearn CV is less than 10
+            N.B: sklearn compute the negative_mean_squared_error so the difference is taken
+            with the plus sign
+        """
+        """print(skScoresList.best_score_)
+        implScoresList.sort(key=lambda el: el["meanScore"])
+        print(implScoresList[0]["meanScore"])
+        self.assertTrue(np.abs(skScoresList.best_score_+implScoresList[0]["meanScore"])<10)"""
 
 
 if __name__=="__main__":
