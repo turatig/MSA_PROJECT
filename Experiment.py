@@ -36,8 +36,6 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
 
         #### Plotting alpha vs coefs/riskEst for any transformation on data
         a=[r for r in scoresList if r["estimator"].getFitIntercept()==t]
-        print("SCORESLIST LENGTH WITH FIT_INTERCEPT={0}".format(t))
-        print(len(a))
         plotCoef(axs[0],a)
         plotTestErr(axs[1],a)
 

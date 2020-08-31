@@ -23,10 +23,23 @@ def kFoldIterator(X,y,k):
         yield {"train": {"data":trainX,"target":trainY}, 
                 "test": {"data":testX,"target":testY}
             }
+            
+def CVEstimate(estimator,X,y,k=5,metric=mse):
+
+    testErr=[]
+    for fold in kFoldIterator(X,y,k):
+        estimator=estimator.fit(fold["train"]["data"],fold["train"]["target"])
+
+        #### Compute the performance on test fold with the given metric
+        testErr.append( metric (estimator.predict(fold["test"]["data"]),
+                            fold["test"]["target"]) )
+    return 1/k*sum(testErr)
+
+
 
 """
     Perform a grid search cross validation.
-    Return a listed of scores so
+    Return a listed of scores sorted by meanScore in ascending order
 """
 def GridSearchCV(estimator,hparams,X,y,k=5,metric=mse):
     

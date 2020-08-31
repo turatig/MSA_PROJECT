@@ -26,9 +26,10 @@ if __name__=="__main__":
     
     """
         GridSearch CV plus nested CV estimates and plot to study dependence of the risk estimate
-        on hyperparamter alpha
+        on hyperparamter alpha.
+        estimateRegression return the best estimator found with GridSearchCV
     """
-    best=estimateRegression(X,y,1,10000,100)
+    best=estimateRegression(X,y,1,10000,100)["estimator"]
 
     """
         Plot target labels and try to shuffle the dataset to verify the realiability of the data
@@ -36,6 +37,10 @@ if __name__=="__main__":
     fig,ax=plt.subplots(1)
     ax.plot(y)
     ax.set_ylabel("Target labels")
+
+    for i in range(10):
+        X,y=shuffleDataset(X,y)
+
     
 
     plt.show()
