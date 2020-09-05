@@ -38,10 +38,7 @@ if __name__=="__main__":
     ax.plot(y)
     ax.set_ylabel("Target labels")
 
-    for i in range(10):
-        X,y=shuffleDataset(X,y)
-
-    
+    reliableData(best,X,y)
 
     plt.show()
     exit()

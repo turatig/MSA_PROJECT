@@ -1,6 +1,6 @@
 import numpy as np
 from Preprocessing import *
-from CrossValidation import GridSearchCV,NestedCVEstimate
+from CrossValidation import GridSearchCV,NestedCVEstimate, CVEstimate
 from Plots import *
 from RidgeRegression import RidgeRegression
 from Metrics import *
@@ -55,3 +55,19 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
         print("\n","*"*100,"\n")
 
     return scoresList[0]
+
+
+"""
+    Shuffle dataSet to test how this operation changes CVEstimates
+"""
+def reliableData(estimator,X,y):
+
+    estimates=[]
+    for i in range(10):
+        X,y=shuffleDataset(X,y)
+        mean,_=CVEstimate(estimator,X,y)
+        estimates.append(mean)
+
+    fig,ax=plt.subplots(1)
+    ax.plot(estimates)
+    ax.set_ylabel("Shuffling data")

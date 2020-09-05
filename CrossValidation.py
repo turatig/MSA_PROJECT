@@ -24,6 +24,9 @@ def kFoldIterator(X,y,k):
                 "test": {"data":testX,"target":testY}
             }
             
+"""
+  Compute a cross-validated estimate
+"""           
 def CVEstimate(estimator,X,y,k=5,metric=mse):
 
     testErr=[]
@@ -33,7 +36,11 @@ def CVEstimate(estimator,X,y,k=5,metric=mse):
         #### Compute the performance on test fold with the given metric
         testErr.append( metric (estimator.predict(fold["test"]["data"]),
                             fold["test"]["target"]) )
-    return 1/k*sum(testErr)
+
+    #### Computing mean test error and variance of the predictors
+    mean=1/k*sum(testErr)
+    return mean, (1/k)*(1/(len(testErr)-1))*sum([(i-mean)**2 for i in testErr])
+
 
 
 
@@ -55,20 +62,7 @@ def GridSearchCV(estimator,hparams,X,y,k=5,metric=mse):
         estimator=RidgeRegression()
         estimator.set_params(**h)
 
-        testErr=[]
-        for fold in kFoldIterator(X,y,k):
-            estimator=estimator.fit(fold["train"]["data"],fold["train"]["target"])
-
-            #### Compute the performance on test fold with the given metric
-            testErr.append( metric (estimator.predict(fold["test"]["data"]),
-                            fold["test"]["target"]) )
-
-            """pred=estimator.predict(fold["test"]["data"])
-            testErr.append( k/X.shape[0] * sum((pred-fold["test"]["target"])**2) )"""
-
-        #### Computing mean test error and variance of predictors
-        mean=1/k*sum(testErr)
-        var=(1/k)*(1/(len(testErr)-1))*sum([(i-mean)**2 for i in testErr])
+        mean,var=CVEstimate(estimator,X,y,k,metric)
 
         estimator=estimator.fit(X,y)
         scoresList.append({"estimator": estimator,"meanScore":mean,"variance":var})
