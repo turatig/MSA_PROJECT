@@ -1,5 +1,5 @@
 import numpy as np
-import Preprocessing as pr
+import utils.preprocessing as pr
 
 class RidgeRegression:
 

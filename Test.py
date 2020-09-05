@@ -12,9 +12,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import make_scorer
 
-from RidgeRegression import RidgeRegression
-from CrossValidation import GridSearchCV as gsc
-from Metrics import *
+from implementation.ridge import RidgeRegression
+from implementation.crossval import GridSearchCV as gsc
+from implementation.utils.metrics import *
 
 
 def getModels(X,y,alpha,fit_intercept=True):
@@ -112,6 +112,3 @@ class RidgeImplementationTest(unittest.TestCase):
 
 if __name__=="__main__":
    unittest.main()
-
-
-
