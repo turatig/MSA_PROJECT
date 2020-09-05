@@ -1,3 +1,6 @@
+"""
+ This module provides functions to perform cross-validated statistical risk estimates
+ """
 import numpy as np
 import itertools as it
 from RidgeRegression import RidgeRegression

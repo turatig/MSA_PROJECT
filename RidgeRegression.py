@@ -1,3 +1,6 @@
+"""
+This module contains the class that implements the Ridge Regression algorithm
+"""
 import numpy as np
 import Preprocessing as pr
 

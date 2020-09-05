@@ -1,3 +1,6 @@
+"""
+This module provides functions for the evaluation of a predictor
+"""
 import numpy as np
 
 #### Functions to evaluate the performance of a predictor

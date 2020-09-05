@@ -1,3 +1,6 @@
+"""
+Main program simply calls functions from the Experiment module
+"""
 import pandas as pd
 import numpy as np
 from Preprocessing import *

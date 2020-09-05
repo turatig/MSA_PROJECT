@@ -1,3 +1,6 @@
+"""
+This module contains functions useful to analyze the Ridge Regression implementation on a given dataset
+"""
 import numpy as np
 from Preprocessing import *
 from CrossValidation import GridSearchCV,NestedCVEstimate, CVEstimate

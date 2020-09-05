@@ -1,3 +1,6 @@
+"""
+This module provides plot functions
+"""
 import matplotlib.pyplot as plt
 from copy import copy
 
