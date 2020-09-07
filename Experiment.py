@@ -50,7 +50,7 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
                             n_values)
 
 
-        print("\n","*"*100,"\n")
+        #### print("\n","*"*100,"\n")
         print("Nested cross-validation estimate for a grid centered around alpha={0} fit_intercept={1}".\
                     format(a[0]["estimator"].getAlpha(),a[0]["estimator"].getFitIntercept()))
 
@@ -63,14 +63,13 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
 """
     Shuffle dataSet to test how this operation changes CVEstimates
 """
-def reliableData(estimator,X,y):
+def shuffledEstimate(estimator,X,y,ax):
 
     estimates=[]
-    for i in range(10):
+    for i in range(30):
         X,y=shuffleDataset(X,y)
         mean,_=CVEstimate(estimator,X,y)
         estimates.append(mean)
 
-    fig,ax=plt.subplots(1)
     ax.plot(estimates)
-    ax.set_ylabel("Shuffling data")
+    return estimates

@@ -12,7 +12,13 @@ from Experiment import *
 
 
 
-
+def logShuffledCVEstimates(estimates,title):
+    print("\n","*"*100,"\n")
+    print(title)
+    print("Best estimate:")
+    print(estimates[0])
+    print("Variance of the estimates:")
+    print(np.var(estimates))
 
 if __name__=="__main__":
 
@@ -26,6 +32,7 @@ if __name__=="__main__":
 
     X=data.drop('median_house_value',axis=1).to_numpy()
     y=data['median_house_value'].to_numpy()
+
     
     """
         GridSearch CV plus nested CV estimates and plot to study dependence of the risk estimate
@@ -41,20 +48,45 @@ if __name__=="__main__":
     ax.plot(y)
     ax.set_ylabel("Target labels")
 
-    reliableData(best,X,y)
 
-    plt.show()
-    exit()
+    """
+        Shuffle dataset to find the reliability of the dataset collected
+    """
+    fig,ax=plt.subplots(1)
+    ax.set_title("Shuffled data")
+    estimates=shuffledEstimate(best,X,y,ax)
+    estimates.sort(reverse=True)
+    logShuffledCVEstimates(estimates,"Shuffle dataset")
 
-    #### Use PCA to compute the same estimates. Select the number of components that count for 95% of the total variance
-    pca=PCA(0.95,whiten=True)
-    pca=pca.fit(stdScale(X))
-    X=pca.transform(stdScale(X))
-
-    #### Principal components
-    estimateRegression(X,stdScale(y),1,10000,100)
-    estimateRegression(X,stdScale(y),0.05,1,100)
-
-    plt.show()
-
+    """
+        Standardize data before computing estimates
+    """
+    fig,ax=plt.subplots(1)
+    ax.set_title("Shuffled dataset and standardized features")
+    estimates=shuffledEstimate(RidgeRegression(alpha=best.getAlpha(),
+                                    fit_intercept=best.getFitIntercept,
+                                    transformer=StdScaler()),X,y,ax)
+    estimates.sort(reverse=True)
+    logShuffledCVEstimates(estimates,"Shuffle dataset and standardize features")
+    """
+        Display correlation matrix to identify correlated features
+    """
     
+    print("Correlation matrix:")
+    print(np.corrcoef(X))
+
+    pca=PCA().fit(X)
+    fig,ax=plt.subplots(1)
+    ax.set_ylabel("Singular values")
+    ax.plot(pca.singular_values_)
+
+    fig,ax=plt.subplots(1)
+    ax.set_title("Dimensionality reduction to 2 components")
+    pca=PCA(n_components=2)
+    estimates=shuffledEstimate(RidgeRegression(alpha=best.getAlpha(),
+                                    fit_intercept=best.getFitIntercept,
+                                    transformer=StdScaler()),X,y,ax)
+    
+    estimates.sort(reverse=True)
+    logShuffledCVEstimates(estimates,"PCA 2 components")
+    plt.show()

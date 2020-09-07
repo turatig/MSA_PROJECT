@@ -14,13 +14,16 @@ class RidgeRegression:
         of the model
         If False, data are supposed to be centered 
         If fit_intercept is True, compute the intercept to be added to predictions
+        intercept: computed intercept of the prediction model
+        transformer: transformer object. If not None, fit and transform data before predictions
     """
-    def __init__(self,alpha=1,fit_intercept=True):
+    def __init__(self,alpha=1,fit_intercept=True,transformer=None):
         
         self.alpha=alpha
         self.fit_intercept=fit_intercept
         self.w=np.array([])
         self.intercept=0.
+        self.transformer=transformer
 
     def getAlpha(self): return self.alpha
     def getFitIntercept(self): return self.fit_intercept
@@ -57,6 +60,10 @@ class RidgeRegression:
     """
 
     def fit(self,X,y):
+
+        if self.transformer is not None:
+            self.transformer=self.transformer.fit(X)
+            X=self.transformer.transform(X)
         
         if self.fit_intercept:
             #### Compute the mean value of every feature in train set
@@ -64,7 +71,6 @@ class RidgeRegression:
             y_offset=np.average(y,axis=0)
             #### Center data by subtracting the mean
             X=pr.center(X)
-            #### y=pr.center(y)
             
         #### w = (X^T X + alpha I) ^ (-1) + X^T y  
         invertible_mat=np.matmul(X.T,X) + self.alpha * np.identity(X.shape[1])
@@ -77,6 +83,8 @@ class RidgeRegression:
 
     #### Return a list of predicted labels for a set of unseen data points.
     def predict(self,X):
+        if self.transformer is not None:
+            X=self.transformer.transform(X)
         return np.matmul(X,self.w)+self.intercept
 
     #### Return a list of loss function(y,y_predicted) 

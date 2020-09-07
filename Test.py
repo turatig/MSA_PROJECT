@@ -1,6 +1,6 @@
 """
 This module contains unit tests to compare this implementation of the Ridge Regression algorithm with 
-sklearn
+that one of sklearn
 """
 from numpy.testing import *
 import unittest
@@ -101,42 +101,11 @@ class RidgeImplementationTest(unittest.TestCase):
         pipe=pipe.fit(self.X,self.y)
         skRes=pipe.predict(randomPoint)
 
-        ssc=StdScaler().fit(self.X)
-        implEst=RidgeRegression(alpha=alpha).fit(ssc.transform(self.X),self.y)
-        res=implEst.predict(ssc.transform(randomPoint))
+        implEst=RidgeRegression(alpha=alpha,transformer=StdScaler()).fit(self.X,self.y)
+        res=implEst.predict(randomPoint)
 
         assert_almost_equal(res,skRes,decimal=4)
 
-        
-
-    #### Testing crossValidation estimate
-    """
-    def test_crossValidation(self):
-        start,stop,n_values=rnd.randrange(10,100),rnd.randrange(10000,15000),rnd.randrange(100,150)
-        print("Values in grid:")
-        print(n_values)
-        implScoresList=gsc(RidgeRegression(),{"alpha": np.linspace(start,stop,n_values)},
-                                                self.X,self.y,metric=r2)
-
-        skScoresList=GridSearchCV(Ridge(),{"alpha": np.linspace(start,stop,n_values)},
-                                    cv=5,return_train_score=False).\
-                                    fit(self.X,self.y)
-
-        print(skScoresList.cv_results_["params"])
-        print(skScoresList.cv_results_["mean_test_score"])
-
-    """
-    """
-            Test that the difference between implemented CV estimate and sklearn CV is less than 10
-            N.B: sklearn compute the negative_mean_squared_error so the difference is taken
-            with the plus sign
-    """
-    """
-        print(skScoresList.best_score_)
-        implScoresList.sort(key=lambda el: el["meanScore"])
-        print(implScoresList[0]["meanScore"])
-        self.assertTrue(np.abs(skScoresList.best_score_+implScoresList[0]["meanScore"])<10)
-    """
 
 
 if __name__=="__main__":

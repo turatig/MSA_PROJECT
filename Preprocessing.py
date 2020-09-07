@@ -33,6 +33,14 @@ class StdScaler():
         return self
 
     def transform(self,X):
-        return (X-self.mean)/self.std_dev
+        #### Return transformed data and handle the case in which some features have std_dev=0 
+        if len([el for el in self.std_dev if el==0])==0:
+            return (X-self.mean)/self.std_dev
+        else:
+            return np.array([\
+                        [ row[i]/self.std_dev[i] if self.std_dev[i]!=0 else row[i] for i in range(X.shape[1])]\
+                        for row in X])
+
+
 
     
