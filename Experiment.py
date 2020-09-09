@@ -23,7 +23,7 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
 
     for key,value in scoresList[0].items():
         print("{0} : {1}".format(key,value))
-    print("\n","*"*100,"\n")
+    print("\n","*"*100)
 
     inter={
         True: "Fit intercept",
@@ -49,13 +49,12 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
                             a[0]["estimator"].getAlpha()+( (stop-start)/n_values )/2,
                             n_values)
 
-
-        #### print("\n","*"*100,"\n")
+        res=NestedCVEstimate(RidgeRegression(),{"alpha":ncv_alpha,"fit_intercept":[t]},X,y,k,metric)
+        print("\n","*"*100,"\n")
         print("Nested cross-validation estimate for a grid centered around alpha={0} fit_intercept={1}".\
                     format(a[0]["estimator"].getAlpha(),a[0]["estimator"].getFitIntercept()))
-
-        print(NestedCVEstimate(RidgeRegression(),{"alpha":ncv_alpha,"fit_intercept":[t]},X,y,k,metric))
-        print("\n","*"*100,"\n")
+        print(res)
+        print("\n","*"*100)
 
     return scoresList[0]
 
@@ -63,13 +62,12 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
 """
     Shuffle dataSet to test how this operation changes CVEstimates
 """
-def shuffledEstimate(estimator,X,y,ax):
+@taketime
+def shuffledCVEstimate(estimator,X,y):
 
     estimates=[]
     for i in range(30):
         X,y=shuffleDataset(X,y)
         mean,_=CVEstimate(estimator,X,y)
         estimates.append(mean)
-
-    ax.plot(estimates)
     return estimates

@@ -51,6 +51,7 @@ def CVEstimate(estimator,X,y,k=5,metric=mse):
     Perform a grid search cross validation.
     Return a listed of scores sorted by meanScore in ascending order
 """
+@taketime
 def GridSearchCV(estimator,hparams,X,y,k=5,metric=mse):
     
     scoresList=[]
@@ -74,6 +75,7 @@ def GridSearchCV(estimator,hparams,X,y,k=5,metric=mse):
     return scoresList
             
 #### Perform nested cross validation estimate
+@taketime
 def NestedCVEstimate(estimator,hparams,X,y,k,metric="mse"):
     estimatedRisk=[]
     m=X.shape[0]

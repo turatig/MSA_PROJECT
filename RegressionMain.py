@@ -26,6 +26,7 @@ if __name__=="__main__":
     data=pd.read_csv('cal-housing.csv')
     #### Performs one-hot ancoding for categorical values in dataset
     data=pd.get_dummies(data)
+    print(data.info())
     #### Dropping na values if they're less than the 5% of the dataset
     if sum(data.isna().sum()/data.shape[0])<0.05:
         data.dropna(inplace=True)
@@ -54,27 +55,28 @@ if __name__=="__main__":
     """
     fig,ax=plt.subplots(1)
     ax.set_title("Shuffled data")
-    estimates=shuffledEstimate(best,X,y,ax)
+    ax.legend(["Non standardized","Standardized"])
+    estimates=shuffledCVEstimate(best,X,y)
     estimates.sort(reverse=True)
     logShuffledCVEstimates(estimates,"Shuffle dataset")
 
     """
         Standardize data before computing estimates
     """
-    fig,ax=plt.subplots(1)
-    ax.set_title("Shuffled dataset and standardized features")
-    estimates=shuffledEstimate(RidgeRegression(alpha=best.getAlpha(),
+    estimates_std=shuffledCVEstimate(RidgeRegression(alpha=best.getAlpha(),
                                     fit_intercept=best.getFitIntercept,
-                                    transformer=StdScaler()),X,y,ax)
-    estimates.sort(reverse=True)
-    logShuffledCVEstimates(estimates,"Shuffle dataset and standardize features")
+                                    transformer=StdScaler()),X,y)
+    estimates_std.sort(reverse=True)
+    logShuffledCVEstimates(estimates_std,"Shuffle dataset and standardize features")
+    ax.plot(estimates)
+    ax.plot(estimates_std)
     """
         Display correlation matrix to identify correlated features
     """
-    
-    print("Correlation matrix:")
-    print(np.corrcoef(X))
-
+    plt.show()
+    exit()
+    plt.matshow(np.corrcoef(X.transpose()))
+    plt.colorbar()
     pca=PCA().fit(X)
     fig,ax=plt.subplots(1)
     ax.set_ylabel("Singular values")
@@ -83,7 +85,7 @@ if __name__=="__main__":
     fig,ax=plt.subplots(1)
     ax.set_title("Dimensionality reduction to 2 components")
     pca=PCA(n_components=2)
-    estimates=shuffledEstimate(RidgeRegression(alpha=best.getAlpha(),
+    estimates=shuffledCVEstimate(RidgeRegression(alpha=best.getAlpha(),
                                     fit_intercept=best.getFitIntercept,
                                     transformer=StdScaler()),X,y,ax)
     
