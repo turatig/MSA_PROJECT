@@ -40,8 +40,9 @@ if __name__=="__main__":
         on hyperparamter alpha.
         estimateRegression return the best estimator found with GridSearchCV
     """
-    best=estimateRegression(X,y,1,10000,100)["estimator"]
-
+    scoresList=estimateRegression(X,y,1,10000,100)
+    best=scoresList[0]["estimator"]
+    
     """
         Plot target labels and try to shuffle the dataset to verify the realiability of the data
     """
@@ -55,7 +56,6 @@ if __name__=="__main__":
     """
     fig,ax=plt.subplots(1)
     ax.set_title("Shuffled data")
-    ax.legend(["Non standardized","Standardized"])
     estimates=shuffledCVEstimate(best,X,y)
     estimates.sort(reverse=True)
     logShuffledCVEstimates(estimates,"Shuffle dataset")
@@ -63,18 +63,19 @@ if __name__=="__main__":
     """
         Standardize data before computing estimates
     """
-    estimates_std=shuffledCVEstimate(RidgeRegression(alpha=best.getAlpha(),
-                                    fit_intercept=best.getFitIntercept,
-                                    transformer=StdScaler()),X,y)
+    estimates_std=shuffledCVEstimate(Pipe(
+            [StdScaler()],RidgeRegression(alpha=best.getAlpha(),fit_intercept=best.getFitIntercept)
+        ),
+        X,y)
     estimates_std.sort(reverse=True)
     logShuffledCVEstimates(estimates_std,"Shuffle dataset and standardize features")
     ax.plot(estimates)
     ax.plot(estimates_std)
+    ax.legend(["Non standardized","Standardized"])
     """
         Display correlation matrix to identify correlated features
     """
-    plt.show()
-    exit()
+    
     plt.matshow(np.corrcoef(X.transpose()))
     plt.colorbar()
     pca=PCA().fit(X)
@@ -82,13 +83,26 @@ if __name__=="__main__":
     ax.set_ylabel("Singular values")
     ax.plot(pca.singular_values_)
 
-    fig,ax=plt.subplots(1)
-    ax.set_title("Dimensionality reduction to 2 components")
-    pca=PCA(n_components=2)
-    estimates=shuffledCVEstimate(RidgeRegression(alpha=best.getAlpha(),
-                                    fit_intercept=best.getFitIntercept,
-                                    transformer=StdScaler()),X,y,ax)
     
-    estimates.sort(reverse=True)
-    logShuffledCVEstimates(estimates,"PCA 2 components")
+    pca=PCA(n_components=4).fit(X)
+    print("\n","*"*100,"\n")
+    print("The ratio of variance explained by 4 components is:")
+    print(sum(pca.explained_variance_ratio_))
+
+    fig,ax=plt.subplots(1)
+    
+    """
+    Compute GridSearchCV again with two preprocessing pipelines and compare results
+    """
+    scoresList1=GridSearchCV(Pipe([PCA(4)],RidgeRegression()),{"alpha": np.linspace(1,10000,100)},
+                                                X,y)
+    
+    scoresList2=GridSearchCV(Pipe([StdScaler(),PCA(4)],RidgeRegression()),{"alpha": np.linspace(1,10000,100)},
+                                                X,y)
+    ax.set_title("PCA comparison")
+    #### Selectin only estimators with fit_intercept=true to do comparisons
+    plotTestErr(ax,[el for el in scoresList if el["estimator"].getFitIntercept()==True])
+    plotTestErr(ax,scoresList1)
+    plotTestErr(ax,scoresList2)
+    ax.legend(["Simple","PCA","Standardized PCA"])
     plt.show()

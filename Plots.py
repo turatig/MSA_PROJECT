@@ -30,15 +30,6 @@ def plotTestErr(ax,scoresList):
     ax.set_xlabel("alpha")
     ax.set_ylabel("meanScore")
 
-#### alpha vs CV risk estimate. Test that sklearn CV estimates and this implementation's one agree
-def plotSkTestErr(ax,scoresList): pass
 
-def plotPredVariance(ax,scoresList):
-    scoresList=copy(scoresList)
-    scoresList.sort(key=lambda e:e["estimator"].getAlpha())
 
-    ax.plot([ x["estimator"].getAlpha() for x in scoresList ],
-            [ y["variance"] for y in scoresList ])
 
-    ax.set_xlabel("alpha")
-    ax.set_ylabel("variance")

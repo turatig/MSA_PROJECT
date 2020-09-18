@@ -5,6 +5,7 @@ import numpy as np
 import itertools as it
 from RidgeRegression import RidgeRegression
 from Metrics import *
+from Preprocessing import Pipe
 
 #### Yield k test folds and the corresponding train part one by one
 def kFoldIterator(X,y,k):
@@ -42,7 +43,7 @@ def CVEstimate(estimator,X,y,k=5,metric=mse):
 
     #### Computing mean test error and variance of the predictors
     mean=1/k*sum(testErr)
-    return mean, (1/k)*(1/(len(testErr)-1))*sum([(i-mean)**2 for i in testErr])
+    return mean
 
 
 
@@ -63,13 +64,17 @@ def GridSearchCV(estimator,hparams,X,y,k=5,metric=mse):
         #### Setting the hyperparam of the algorithm
         h={d[0] : d[1] for d in zip(hparams.keys(),combination)}
         
-        estimator=RidgeRegression()
+        estimator=estimator.copy()
         estimator.set_params(**h)
 
-        mean,var=CVEstimate(estimator,X,y,k,metric)
+        mean=CVEstimate(estimator,X,y,k,metric)
 
         estimator=estimator.fit(X,y)
-        scoresList.append({"estimator": estimator,"meanScore":mean,"variance":var})
+
+        #### If the type of the estimator is a pipeline, keep only data referred to estimator
+        if(type(estimator) is Pipe):
+            estimator=estimator.estimator
+        scoresList.append({"estimator": estimator,"meanScore":mean})
 
     scoresList.sort(key=lambda e:e["meanScore"])
     return scoresList

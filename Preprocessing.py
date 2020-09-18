@@ -23,9 +23,9 @@ def shuffleDataset(X,y):
 #### Class that implements a simple standard scaler
 class StdScaler():
 
-    def __init__(self):
-        self.mean=0.
-        self.std_dev=0.
+    def __init__(self,mean=0.,std_dev=0.):
+        self.mean=mean
+        self.std_dev=std_dev
 
     def fit(self,X):
         self.mean=np.average(X,axis=0)
@@ -40,6 +40,44 @@ class StdScaler():
             return np.array([\
                         [ row[i]/self.std_dev[i] if self.std_dev[i]!=0 else row[i] for i in range(X.shape[1])]\
                         for row in X])
+
+    def get_params(self):
+        return {"mean":self.mean,"std_dev":self.std_dev}
+
+#### Class to make a pipeline composed by a list of tansformers and an estimator
+class Pipe():
+    def __init__(self,transformers=[],estimator=None):
+        #### List of transformer object
+        self.transformers=[el for el in transformers]
+        self.estimator=estimator
+
+    def fit(self,X,y=None):
+        for t in self.transformers:
+            t.fit(X)
+            X=t.transform(X)
+        if(self.estimator is not None and y is not None):
+            self.estimator.fit(X,y)
+        return self
+
+    ###Recursively apply transformations from first to last
+    def transform(self,X):
+        def apply(t,_X):
+            if not t: return _X 
+            else: return apply(t[1:],t[0].transform(_X))
+        return apply(self.transformers,X)
+
+    def predict(self,X):
+        if(self.estimator is not None):
+            return self.estimator.predict(self.transform(X))
+        return None
+
+    def set_params(self,**d):
+        self.estimator.set_params(**d)
+
+    #### Return exact copy of a pipeline
+    def copy(self):
+        return Pipe([type(t)(**t.get_params()) for t in self.transformers],self.estimator.copy())
+
 
 
 

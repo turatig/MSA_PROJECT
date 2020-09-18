@@ -15,15 +15,13 @@ class RidgeRegression:
         If False, data are supposed to be centered 
         If fit_intercept is True, compute the intercept to be added to predictions
         intercept: computed intercept of the prediction model
-        transformer: transformer object. If not None, fit and transform data before predictions
     """
-    def __init__(self,alpha=1,fit_intercept=True,transformer=None):
+    def __init__(self,alpha=1,fit_intercept=True):
         
         self.alpha=alpha
         self.fit_intercept=fit_intercept
         self.w=np.array([])
         self.intercept=0.
-        self.transformer=transformer
 
     def getAlpha(self): return self.alpha
     def getFitIntercept(self): return self.fit_intercept
@@ -52,6 +50,10 @@ class RidgeRegression:
         for k,v in d.items():
             try: _d[k](v)
             except KeyError as e: print("The algorithm doesn't have {0} as hyperparameter".format(k))
+    
+    #### Return a new object of this class set with the same params of the caller
+    def copy(self):
+        return RidgeRegression(**self.get_params())
     """
         Method to fit the model.
         Compute w which optimize || Xw - y ||^2 + alpha || w ||^2
@@ -60,16 +62,11 @@ class RidgeRegression:
     """
 
     def fit(self,X,y):
-
-        if self.transformer is not None:
-            self.transformer=self.transformer.fit(X)
-            X=self.transformer.transform(X)
         
         if self.fit_intercept:
             #### Compute the mean value of every feature in train set
             X_offset=np.average(X,axis=0)
             y_offset=np.average(y,axis=0)
-            #### Center data by subtracting the mean
             X=pr.center(X)
             
         #### w = (X^T X + alpha I) ^ (-1) + X^T y  
@@ -83,8 +80,6 @@ class RidgeRegression:
 
     #### Return a list of predicted labels for a set of unseen data points.
     def predict(self,X):
-        if self.transformer is not None:
-            X=self.transformer.transform(X)
         return np.matmul(X,self.w)+self.intercept
 
     #### Return a list of loss function(y,y_predicted) 

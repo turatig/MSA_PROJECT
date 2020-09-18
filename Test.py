@@ -12,13 +12,14 @@ import random as rnd
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge,RidgeCV
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_validate,KFold
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import make_scorer
+from sklearn.decomposition import PCA
 
-from Preprocessing import StdScaler
+from Preprocessing import StdScaler,Pipe
 from RidgeRegression import RidgeRegression
-from CrossValidation import GridSearchCV as gsc
+from CrossValidation import CVEstimate
 from Metrics import *
 
 
@@ -96,17 +97,44 @@ class RidgeImplementationTest(unittest.TestCase):
         alpha=rnd.random()*100
         randomPoint=np.array([[rnd.random()*100 for i in range(self.X.shape[1])]])
 
+        ssc_sk=StandardScaler().fit(self.X)
+        ssc=StdScaler().fit(self.X)
+        assert_array_almost_equal(ssc.transform(self.X),ssc_sk.transform(self.X),decimal=4)
+
         #### sklearn results
         pipe=make_pipeline(StandardScaler(),Ridge(alpha=alpha))
         pipe=pipe.fit(self.X,self.y)
         skRes=pipe.predict(randomPoint)
 
-        implEst=RidgeRegression(alpha=alpha,transformer=StdScaler()).fit(self.X,self.y)
-        res=implEst.predict(randomPoint)
+        pipe=Pipe([StdScaler()],RidgeRegression(alpha)).fit(self.X,self.y)
+        res=pipe.predict(randomPoint)
 
         assert_almost_equal(res,skRes,decimal=4)
 
+    #### Testing pipeline
+    def test_pipeline(self):
 
+        print("*"*20,"PIPELINE TEST","*"*20)
+        alpha=rnd.random()*100
+        randomPoint=np.array([[rnd.random()*100 for i in range(self.X.shape[1])]])
+
+        pipesk=make_pipeline(StandardScaler(),PCA(4),Ridge(alpha=alpha))
+        pipe=Pipe([StdScaler(),PCA(4)],RidgeRegression(alpha=alpha))
+
+        pipesk=pipesk.fit(self.X,self.y)
+        pipe=pipe.fit(self.X,self.y)
+        
+        assert_array_almost_equal(pipe.predict(randomPoint),pipesk.predict(randomPoint))
+
+    #### cross validation test
+    def test_cv(self):
+        print("*"*20,"CROSS-VALIDATION TEST","*"*20)
+        alpha=rnd.random()*100
+
+        cv=cross_validate(Ridge(2),self.X,self.y,scoring="neg_mean_squared_error",cv=KFold(5))
+        print(1/5*sum(cv["test_score"]))
+        cvimp=CVEstimate(RidgeRegression(2),self.X,self.y,5)
+        print(cvimp)
 
 if __name__=="__main__":
    unittest.main()

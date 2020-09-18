@@ -12,12 +12,13 @@ from Metrics import *
     Compute GridSearchCV and nested cross-validation estimate and set plot axes
     start,stop,n_values are the parameters of the grid. k=number of folds for 
     cross-validation.
-    Return the estimator with the best score together with it's CV estimated risk
+    Return the scoresList of the GridSearchCV. Plot coeffs vs alpha and riskEstimate vs alpha.  
 """
 def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
     scoresList=GridSearchCV(RidgeRegression(),{"alpha": np.linspace(start,stop,n_values),
                                                 "fit_intercept":[False,True]},
                                                 X,y,k,metric)
+    nest_est=[]
     print("\n","*"*100,"\n")
     print("The best value of alpha found in range {0}-{1} and score values:".format(start,stop))
 
@@ -55,8 +56,13 @@ def estimateRegression(X,y,start,stop,n_values,k=5,metric=mse):
                     format(a[0]["estimator"].getAlpha(),a[0]["estimator"].getFitIntercept()))
         print(res)
         print("\n","*"*100)
+        nest_est.append((t,res))
 
-    return scoresList[0]
+    nest_est.sort(key=lambda el:el[1])
+    print("The best nested CV estimate is obtained with fit_intercept={0}".format(nest_est[0][0]))
+    print("The difference between the two is {0}".format(abs(nest_est[0][1]-nest_est[1][1])))
+
+    return scoresList
 
 
 """
@@ -68,6 +74,6 @@ def shuffledCVEstimate(estimator,X,y):
     estimates=[]
     for i in range(30):
         X,y=shuffleDataset(X,y)
-        mean,_=CVEstimate(estimator,X,y)
+        mean=CVEstimate(estimator,X,y)
         estimates.append(mean)
     return estimates
