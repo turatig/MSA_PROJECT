@@ -126,15 +126,6 @@ class RidgeImplementationTest(unittest.TestCase):
         
         assert_array_almost_equal(pipe.predict(randomPoint),pipesk.predict(randomPoint))
 
-    #### cross validation test
-    def test_cv(self):
-        print("*"*20,"CROSS-VALIDATION TEST","*"*20)
-        alpha=rnd.random()*100
-
-        cv=cross_validate(Ridge(2),self.X,self.y,scoring="neg_mean_squared_error",cv=KFold(5))
-        print(1/5*sum(cv["test_score"]))
-        cvimp=CVEstimate(RidgeRegression(2),self.X,self.y,5)
-        print(cvimp)
 
 if __name__=="__main__":
    unittest.main()

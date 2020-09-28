@@ -1,5 +1,5 @@
 """
-Main program simply calls functions from the Experiment module
+MAIN EXPERIMENT PROGRAM
 """
 import pandas as pd
 import numpy as np
@@ -90,7 +90,7 @@ if __name__=="__main__":
     print(sum(pca.explained_variance_ratio_))
 
     fig,ax=plt.subplots(1)
-    
+
     """
     Compute GridSearchCV again with two preprocessing pipelines and compare results
     """

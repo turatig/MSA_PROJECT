@@ -20,6 +20,23 @@ def shuffleDataset(X,y):
     rn.shuffle(a)
     return np.array([row[:-1] for row in a]),np.array([row[-1] for row in a])
 
+
+""" 
+Cache results of transformation to speed up the performance in cross-validation
+"""
+def cache_transformer(f):
+    __CACHE__=[]
+    def _wrap(self,X):
+        nonlocal __CACHE__
+        for i in __CACHE__:
+            if(i["in"] is X):
+                return i["out"]
+        if len(__CACHE__)>=5:
+            __CACHE__=__CACHE__[1:]
+        __CACHE__.append({"in":X,"out":f(self,X)})
+        return __CACHE__[-1]["out"]
+    return _wrap
+
 #### Class that implements a simple standard scaler
 class StdScaler():
 
@@ -32,6 +49,7 @@ class StdScaler():
         self.std_dev=np.std(X,axis=0)
         return self
 
+    @cache_transformer
     def transform(self,X):
         #### Return transformed data and handle the case in which some features have std_dev=0 
         if len([el for el in self.std_dev if el==0])==0:
@@ -60,6 +78,7 @@ class Pipe():
         return self
 
     ###Recursively apply transformations from first to last
+    @cache_transformer
     def transform(self,X):
         def apply(t,_X):
             if not t: return _X 
